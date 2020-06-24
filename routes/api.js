@@ -32,14 +32,14 @@ router.get('/images',(req,res,next)=>{
 });
 
 router.post('/images',upload.single('specialImage'),(req,res,next)=>{
-	console.log(req.file);
+	//console.log(req.file);
 
 	var ext = path.extname(req.file.filename);
 	// console.log(ext);
 
 	Image.create({
 		name:req.body.name,
-		url: req.file.path,
+		url: req.body.url,
 		type: req.file.mimetype,
 		metaData:[{
 			Size: req.file.size,

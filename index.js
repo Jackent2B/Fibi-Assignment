@@ -1,14 +1,8 @@
 const express = require('express');
+
+//to parse the body data
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-var im = require('imagemagick');
-// const readChunk = require('read-chunk');
-// const imageType = require('image-type');
-var path = require('path');
-//Return the extension:
-// var ext = path.extname('/Users/Refsnes/demo_path.js');
-// console.log(ext);
-
 
 //connection with database
 var url = process.env.DATABASEURL || "mongodb://localhost/fibi";
@@ -23,6 +17,7 @@ const routes = require('./routes/api');
 
 //using body-parser
 app.use(bodyParser.json());
+app.use('/uploads',express.static('uploads'));
 
 //initialisation of routes
 app.use(routes);

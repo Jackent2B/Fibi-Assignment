@@ -1,9 +1,22 @@
 const express = require('express');
 //to fetch metaData
-var im = require('imagemagick');
 const router = express.Router();
 const Image = require('../models/schema');
-const imageType = require('image-type');
+
+//to upload files
+const multer = require('multer');
+ 
+// for storage of file with some specifications in the disk
+const storage = multer.diskStorage({
+	destination: (req,file,cb)=>{
+		cb(null,'./uploads/');
+	},
+	filename: (req,file,cb)=>{
+		cb(null,file.originalname);
+	}
+})
+
+const upload = multer({storage: storage});
 
 var path = require('path');
 
@@ -18,24 +31,21 @@ router.get('/images',(req,res,next)=>{
 	})
 });
 
-router.post('/images',(req,res,next)=>{
-	//console.log(req.body.image);
-	// console.log(im.identify('https://images.unsplash.com/photo-1550275994-2bc88dc68637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'));
-	//Return the extension:
-		// var ext = path.extname('https://images.unsplash.com/photo-1550275994-2bc88dc68637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60');
-		// console.log(ext);
-	const url = 'https://images.unsplash.com/photo-1550275994-2bc88dc68637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60';
- 		
-		router.get(url, response => {
-    		response.on('readable', () => {
-        const chunk = response.read(imageType.minimumBytes);
-        response.destroy();
-        console.log(imageType(chunk).ext);
-        //=> {ext: 'gif', mime: 'image/gif'}
-    		});
-		});
+router.post('/images',upload.single('specialImage'),(req,res,next)=>{
+	console.log(req.file);
 
-	Image.create(req.body).then((image)=>{
+	var ext = path.extname(req.file.filename);
+	// console.log(ext);
+
+	Image.create({
+		name:req.body.name,
+		url: req.file.path,
+		type: req.file.mimetype,
+		metaData:[{
+			Size: req.file.size,
+			extType: ext
+		}]
+	}).then((image)=>{
 		res.send(image);
 	})
 	.catch(next);
